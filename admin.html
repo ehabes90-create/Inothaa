@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>إنوثه — لوحة الإدارة</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#0c0c10;--card:#161620;--card2:#1e1e2a;--b:#252535;
+  --gold:#d4a855;--gd:#9a7830;--green:#3db87a;--red:#e05252;
+  --orange:#e09040;--blue:#5a9fd4;--purple:#8b6fd4;
+  --t1:#f0ece4;--t2:#8888a0;--t3:#55556a;
+  --r:14px;--r2:8px;
+  --br1:#c8706a;--br2:#8b6fd4;
+}
+body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--t1);direction:rtl;min-height:100vh}
+button{cursor:pointer;border:none;background:none;font-family:'Cairo',sans-serif}
+input,select{font-family:'Cairo',sans-serif;direction:rtl}
+#login{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1.5rem}
+.lb{width:100%;max-width:340px;background:var(--card);border:1px solid var(--b);border-radius:20px;padding:2rem}
+.llogo{font-size:2.8rem;font-weight:900;color:var(--gold);text-align:center;letter-spacing:.12em}
+.lsub{text-align:center;color:var(--t2);font-size:.8rem;margin:.3rem 0 1.8rem}
+.li{width:100%;padding:.85rem 1rem;background:var(--bg);border:1.5px solid var(--b);border-radius:var(--r2);color:var(--t1);font-size:.95rem;outline:none;margin-bottom:.9rem;transition:border .2s}
+.li:focus{border-color:var(--gold)}
+.lbtn{width:100%;padding:.95rem;background:var(--gold);color:#1a1410;border-radius:var(--r2);font-size:1rem;font-weight:700}
+.lerr{color:var(--red);font-size:.78rem;text-align:center;margin-top:.6rem;display:none}
+.lhint{color:var(--t3);font-size:.72rem;text-align:center;margin-top:.9rem}
+.fbstat{text-align:center;margin-top:.7rem;font-size:.72rem;padding:.4rem .8rem;border-radius:20px;display:inline-block;width:100%}
+.fbconn{background:rgba(61,184,122,.15);color:var(--green)}
+.fbdis{background:rgba(224,82,82,.12);color:var(--red)}
+.fbload{background:rgba(212,168,85,.12);color:var(--gold)}
+#branch-sel{display:none;position:fixed;inset:0;background:var(--bg);z-index:9998;flex-direction:column;align-items:center;justify-content:center;padding:2rem;gap:1rem}
+.bsel-logo{font-size:2.5rem;font-weight:900;color:var(--gold);letter-spacing:.12em;margin-bottom:.2rem}
+.bsel-title{font-size:1.1rem;font-weight:700;color:var(--t2);margin-bottom:.5rem}
+.bsel-btn{width:100%;max-width:320px;padding:1.3rem 1.5rem;border-radius:var(--r);display:flex;align-items:center;justify-content:space-between;font-size:1rem;font-weight:700;transition:all .2s;cursor:pointer}
+.bsel-btn:active{transform:scale(.97)}
+.bsel-ladies{background:linear-gradient(135deg,#8a2020,var(--br1));color:#fff}
+.bsel-abaya{background:linear-gradient(135deg,#2a1830,var(--br2));color:#d4a855}
+.bsel-btn span.sub{font-size:.75rem;opacity:.8;font-weight:400}
+#app{display:none;padding-bottom:calc(4.5rem + env(safe-area-inset-bottom))}
+.topbar{position:sticky;top:0;z-index:100;background:rgba(12,12,16,.95);backdrop-filter:blur(16px);border-bottom:1px solid var(--b);padding:.8rem 1rem;display:flex;justify-content:space-between;align-items:center}
+.tlogo{font-size:1.1rem;font-weight:900;letter-spacing:.1em}
+.tlogo-l{color:var(--br1)}.tlogo-a{color:var(--br2)}
+.tbranch-tag{font-size:.7rem;padding:.2rem .65rem;border-radius:20px;margin-right:.4rem;font-weight:700}
+.tt-l{background:rgba(200,112,106,.15);color:var(--br1)}
+.tt-a{background:rgba(139,111,212,.15);color:var(--br2)}
+.tright{display:flex;align-items:center;gap:.6rem}
+.tdate{font-size:.68rem;color:var(--t3)}
+.tbtn{border:1px solid var(--b);color:var(--t2);padding:.3rem .75rem;border-radius:20px;font-size:.7rem;cursor:pointer}
+.switch-branch{font-size:.7rem;padding:.3rem .7rem;border-radius:20px;font-weight:700;cursor:pointer}
+.sw-l{background:rgba(200,112,106,.15);color:var(--br1);border:1px solid rgba(200,112,106,.3)}
+.sw-a{background:rgba(139,111,212,.15);color:var(--br2);border:1px solid rgba(139,111,212,.3)}
+.fbdot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.fbdot-on{background:var(--green)}.fbdot-off{background:var(--red)}.fbdot-load{background:var(--orange)}
+.page{display:none;padding:1rem;animation:fu .3s ease}
+.page.active{display:block}
+@keyframes fu{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.bnav{position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(20,20,26,.97);border-top:1px solid var(--b);display:flex;padding-bottom:env(safe-area-inset-bottom)}
+.nb{flex:1;display:flex;flex-direction:column;align-items:center;gap:.15rem;padding:.58rem .15rem;color:var(--t3);font-size:.56rem;transition:all .2s;cursor:pointer}
+.nb .ic{font-size:1.15rem;transition:transform .2s}
+.nb.on{color:var(--gold)}.nb.on .ic{transform:translateY(-2px)}
+.nbadge{display:none;position:absolute;top:4px;left:50%;transform:translateX(2px);background:var(--red);color:#fff;font-size:.5rem;font-weight:700;padding:.1rem .28rem;border-radius:10px;z-index:10}
+.nbadge.show{display:block}
+.ndot{display:none;width:8px;height:8px;border-radius:50%;background:var(--red);border:2px solid var(--bg);position:absolute;top:2px;right:2px}
+.ndot.on{display:block}
+.pt{font-size:1.25rem;font-weight:700;margin-bottom:.25rem}
+.ps{color:var(--t2);font-size:.77rem;margin-bottom:1.1rem}
+.card{background:var(--card);border:1px solid var(--b);border-radius:var(--r);padding:1rem;margin-bottom:.7rem}
+.ctitle{font-size:.88rem;font-weight:700;margin-bottom:.8rem;display:flex;justify-content:space-between;align-items:center}
+.ctitle a{color:var(--gold);font-size:.77rem;cursor:pointer}
+.kgrid{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:.9rem}
+.kpi{background:var(--card);border:1px solid var(--b);border-radius:var(--r);padding:.9rem;position:relative;overflow:hidden}
+.kpi::after{content:'';position:absolute;bottom:-10px;left:-10px;width:50px;height:50px;border-radius:50%;opacity:.1}
+.kg::after{background:var(--gold)}.kg2::after{background:var(--green)}.kg3::after{background:var(--orange)}.kg4::after{background:var(--blue)}.kg5::after{background:var(--red)}.kg6::after{background:var(--purple)}
+.kico{font-size:1.25rem;margin-bottom:.4rem}
+.kval{font-size:1.35rem;font-weight:700;line-height:1}
+.kg .kval{color:var(--gold)}.kg2 .kval{color:var(--green)}.kg3 .kval{color:var(--orange)}.kg4 .kval{color:var(--blue)}.kg5 .kval{color:var(--red)}.kg6 .kval{color:var(--purple)}
+.klbl{font-size:.65rem;color:var(--t2);margin-top:.2rem}
+.tabs{display:flex;gap:3px;background:var(--card2);padding:3px;border-radius:30px;margin-bottom:1rem;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex-shrink:0;padding:.43rem .78rem;border-radius:30px;font-size:.76rem;font-weight:700;color:var(--t2);transition:all .22s;white-space:nowrap;cursor:pointer}
+.tab.on{background:var(--gold);color:#1a1410}
+.fg{margin-bottom:.82rem}
+.fl{display:block;font-size:.73rem;font-weight:700;color:var(--t2);margin-bottom:.3rem}
+.fh{font-size:.66rem;color:var(--t3);margin-top:.2rem}
+.fi,.fs{width:100%;padding:.75rem .88rem;background:var(--bg);border:1.5px solid var(--b);border-radius:var(--r2);color:var(--t1);font-size:.86rem;outline:none;transition:border .2s}
+.fi:focus,.fs:focus{border-color:var(--gold)}
+.fs option{background:var(--card)}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:.62rem}
+.btn{display:flex;align-items:center;justify-content:center;gap:.4rem;padding:.76rem 1.2rem;border-radius:var(--r2);font-size:.86rem;font-weight:700;transition:all .2s;width:100%;cursor:pointer}
+.btn:active{transform:scale(.97)}
+.btn-gold{background:var(--gold);color:#1a1410}.btn-green{background:var(--green);color:#fff}.btn-red{background:var(--red);color:#fff}.btn-out{background:transparent;border:1.5px solid var(--b);color:var(--t2)}
+.btn-sm{padding:.4rem .85rem;font-size:.76rem;width:auto;border-radius:20px}
+.ibtn{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0;transition:all .2s;cursor:pointer}
+.dbtn{background:rgba(224,82,82,.15);color:var(--red)}.dbtn:active{background:var(--red);color:#fff}
+.al{display:flex;gap:.58rem;padding:.82rem .92rem;border-radius:var(--r2);margin-bottom:.62rem;align-items:flex-start}
+.alw{background:rgba(224,144,64,.1);border:1px solid rgba(224,144,64,.3)}
+.alr{background:rgba(224,82,82,.1);border:1px solid rgba(224,82,82,.3)}
+.alg{background:rgba(61,184,122,.1);border:1px solid rgba(61,184,122,.3)}
+.aic{font-size:1.05rem;flex-shrink:0}
+.atx strong{display:block;font-size:.81rem;font-weight:700;margin-bottom:.13rem}
+.atx small{font-size:.69rem;color:var(--t2);line-height:1.4}
+.chart{display:flex;align-items:flex-end;gap:5px;height:90px;padding-top:.3rem}
+.bc{flex:1;display:flex;flex-direction:column;align-items:center;gap:.2rem}
+.bw{flex:1;width:100%;display:flex;align-items:flex-end}
+.b{width:100%;border-radius:4px 4px 0 0;min-height:3px;transition:height .7s}
+.bgold{background:linear-gradient(to top,var(--gd),var(--gold))}
+.bl2{font-size:.56rem;color:var(--t3);text-align:center}
+.bv{font-size:.56rem;color:var(--t2);font-weight:700}
+.sc{background:var(--card);border:1px solid var(--b);border-radius:var(--r);padding:.88rem;margin-bottom:.58rem;border-right:4px solid var(--b)}
+.sc-ok{border-right-color:var(--green)}.sc-low{border-right-color:var(--orange)}.sc-dng{border-right-color:var(--red)}.sc-out{border-right-color:var(--t3)}
+.scr{display:flex;align-items:center;gap:.68rem}
+.sem{font-size:1.85rem;width:38px;text-align:center;flex-shrink:0}
+.sin{flex:1;min-width:0}
+.snm{font-weight:700;font-size:.86rem;margin-bottom:.1rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.smt{font-size:.68rem;color:var(--t2)}
+.sqw{text-align:center;min-width:40px}
+.sqn{font-size:1.2rem;font-weight:700}
+.sqn.ok{color:var(--green)}.sqn.low{color:var(--orange)}.sqn.dng{color:var(--red)}.sqn.out{color:var(--t3)}
+.sunit{font-size:.58rem;color:var(--t3)}
+.sbar{height:5px;background:var(--b);border-radius:3px;margin:.48rem 0;overflow:hidden}
+.sfill{height:100%;border-radius:3px;transition:width .5s}
+.sf-ok{background:var(--green)}.sf-low{background:var(--orange)}.sf-dng{background:var(--red)}.sf-out{background:var(--t3)}
+.sctrl{display:flex;align-items:center;gap:.42rem;padding-top:.58rem;border-top:1px solid var(--b)}
+.sclbl{font-size:.68rem;color:var(--t2);flex:1}
+.qw{display:flex;align-items:center;gap:.33rem}
+.qa,.qr{width:30px;height:30px;border-radius:7px;font-size:1rem;font-weight:700;display:flex;align-items:center;justify-content:center;transition:all .2s;cursor:pointer}
+.qa{background:rgba(61,184,122,.2);color:var(--green)}.qa:active{background:var(--green);color:#fff}
+.qr{background:rgba(224,82,82,.15);color:var(--red)}.qr:active{background:var(--red);color:#fff}
+.qf{width:44px;text-align:center;background:var(--bg);border:1px solid var(--b);border-radius:6px;padding:.26rem;color:var(--t1);font-weight:700;font-size:.86rem}
+.setq{background:rgba(212,168,85,.2);color:var(--gold);border-radius:7px;padding:.3rem .62rem;font-size:.72rem;font-weight:700;cursor:pointer}
+.setq:active{background:var(--gold);color:#1a1410}
+.fc{border-radius:var(--r);padding:1rem 1.1rem;color:#fff;position:relative;overflow:hidden;margin-bottom:.62rem}
+.fc::after{content:'';position:absolute;top:-15px;left:-15px;width:65px;height:65px;border-radius:50%;background:rgba(255,255,255,.07)}
+.fc-g{background:linear-gradient(135deg,#1f6b42,var(--green))}.fc-gold{background:linear-gradient(135deg,#7a5820,var(--gold))}.fc-o{background:linear-gradient(135deg,#8a5020,var(--orange))}.fc-b{background:linear-gradient(135deg,#205080,var(--blue))}
+.fc h4{font-size:.72rem;opacity:.8;margin-bottom:.3rem}
+.fcv{font-size:1.6rem;font-weight:700;line-height:1}
+.fcs{font-size:.67rem;opacity:.7;margin-top:.22rem}
+.tr{display:flex;align-items:center;gap:.62rem;background:var(--card);border:1px solid var(--b);border-radius:var(--r2);padding:.78rem;margin-bottom:.48rem;border-right:3px solid var(--b)}
+.ti{border-right-color:var(--green)}.te{border-right-color:var(--red)}.tc{border-right-color:var(--orange)}
+.tic{font-size:1.15rem;width:28px;text-align:center;flex-shrink:0}
+.tin{flex:1;min-width:0}
+.td{font-weight:700;font-size:.84rem;margin-bottom:.1rem}
+.tm{font-size:.68rem;color:var(--t2)}
+.ta{font-weight:700;font-size:.88rem;white-space:nowrap}
+.ti .ta{color:var(--green)}.te .ta{color:var(--red)}.tc .ta{color:var(--orange)}
+.dc{background:var(--card);border:1px solid var(--b);border-radius:var(--r);padding:.88rem;margin-bottom:.58rem}
+.dch{display:flex;justify-content:space-between;align-items:center;margin-bottom:.3rem}
+.dcn{font-weight:700;font-size:.86rem}
+.dca{font-weight:700;color:var(--orange);font-size:.95rem}
+.dcm{font-size:.7rem;color:var(--t2);margin-bottom:.52rem;line-height:1.7}
+.dcp{height:5px;background:var(--b);border-radius:3px;margin-bottom:.58rem}
+.dcf{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--blue),var(--purple));transition:width .5s}
+.dca2{display:flex;gap:.42rem}
+.paybtn{flex:1;padding:.43rem;border-radius:8px;background:rgba(61,184,122,.18);color:var(--green);font-size:.76rem;font-weight:700;cursor:pointer}
+.paybtn:active{background:var(--green);color:#fff}
+.delbtn2{padding:.43rem .72rem;border-radius:8px;background:rgba(224,82,82,.15);color:var(--red);font-size:.76rem;font-weight:700;cursor:pointer}
+.oc{background:var(--card);border:1px solid var(--b);border-radius:var(--r);padding:.88rem;margin-bottom:.58rem}
+.och{display:flex;justify-content:space-between;align-items:center;margin-bottom:.48rem}
+.oid{font-weight:700;font-size:.86rem;color:var(--gold)}
+.spill{padding:.2rem .58rem;border-radius:20px;font-size:.66rem;font-weight:700}
+.sp{background:rgba(212,168,85,.15);color:var(--gold)}.sc2{background:rgba(90,159,212,.15);color:var(--blue)}.ssh{background:rgba(139,111,212,.15);color:var(--purple)}.sd{background:rgba(61,184,122,.15);color:var(--green)}.sx{background:rgba(224,82,82,.12);color:var(--red)}
+.ometa{font-size:.73rem;color:var(--t2);line-height:1.9;margin-bottom:.58rem}
+.otot{font-weight:700;color:var(--gold)}
+.osel{width:100%;padding:.46rem .72rem;background:var(--bg);border:1px solid var(--b);border-radius:8px;color:var(--t1);font-size:.78rem}
+.lr{display:flex;align-items:center;gap:.52rem;background:var(--card);border:1px solid var(--b);border-radius:var(--r2);padding:.68rem;margin-bottom:.42rem}
+.lic{font-size:1rem;width:25px;text-align:center}
+.lin{flex:1}.lnm{font-size:.8rem;font-weight:600}.ldt{font-size:.65rem;color:var(--t3)}
+.lqt{font-weight:700;font-size:.86rem}
+.lqi{color:var(--green)}.lqo{color:var(--red)}.lqs{color:var(--gold)}
+.tg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.4rem;margin-bottom:.82rem}
+.to2{padding:.5rem .18rem;border:1.5px solid var(--b);border-radius:var(--r2);background:var(--bg);color:var(--t2);font-size:.76rem;font-weight:700;text-align:center;line-height:1.4;transition:all .2s;cursor:pointer}
+.tcash.sel{border-color:var(--green);background:rgba(61,184,122,.12);color:var(--green)}
+.tcred.sel{border-color:var(--orange);background:rgba(224,144,64,.12);color:var(--orange)}
+.tret.sel{border-color:var(--red);background:rgba(224,82,82,.1);color:var(--red)}
+.tinc.sel{border-color:var(--green);background:rgba(61,184,122,.12);color:var(--green)}
+.texp.sel{border-color:var(--red);background:rgba(224,82,82,.1);color:var(--red)}
+.tob.sel{border-color:var(--blue);background:rgba(90,159,212,.12);color:var(--blue)}
+.chips{display:flex;gap:.35rem;overflow-x:auto;padding-bottom:.32rem;margin-bottom:.82rem;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex-shrink:0;padding:.3rem .82rem;border-radius:20px;border:1px solid var(--b);background:var(--card);color:var(--t2);font-size:.73rem;font-weight:600;white-space:nowrap;transition:all .2s;cursor:pointer}
+.chip.on{background:var(--gold);color:#1a1410;border-color:var(--gold)}
+.prevbox{background:var(--bg);border:1.5px solid var(--gold);border-radius:var(--r2);padding:.68rem 1rem;text-align:center;margin-bottom:.82rem;display:none}
+.prevbox span{color:var(--gold);font-size:1.1rem;font-weight:700}
+.empty{text-align:center;padding:2.5rem 1rem;color:var(--t3)}
+.eico{font-size:2.3rem;margin-bottom:.52rem}
+.empty h3{font-size:.9rem;color:var(--t2);margin-bottom:.28rem}
+.epick{display:flex;flex-wrap:wrap;gap:.36rem;margin-top:.36rem}
+.ep{width:36px;height:36px;border-radius:7px;border:2px solid var(--b);background:var(--bg);font-size:1.15rem;display:flex;align-items:center;justify-content:center;transition:all .2s;cursor:pointer}
+.ep.on{border-color:var(--gold);background:rgba(212,168,85,.15)}
+#toast{position:fixed;bottom:calc(5rem + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%) translateY(20px);background:var(--gold);color:#1a1410;padding:.62rem 1.4rem;border-radius:30px;font-weight:700;font-size:.8rem;z-index:9999;opacity:0;pointer-events:none;white-space:nowrap;transition:all .33s cubic-bezier(.34,1.56,.64,1);max-width:90vw;text-align:center}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#toast.tg{background:var(--green);color:#fff}
+#toast.tr{background:var(--red);color:#fff}
+#np{display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.7)}
+.nbox{position:absolute;top:0;right:0;bottom:0;width:min(300px,90vw);background:var(--card);border-left:1px solid var(--b);padding:1.1rem;overflow-y:auto}
+.ntitle{font-weight:700;font-size:.95rem;margin-bottom:.88rem;display:flex;justify-content:space-between;align-items:center}
+.ni{background:var(--card2);border:1px solid var(--b);border-radius:var(--r2);padding:.72rem;margin-bottom:.42rem}
+.nit{font-weight:700;font-size:.8rem;margin-bottom:.16rem}
+.nis{font-size:.69rem;color:var(--t2)}
+.rep-row{display:flex;justify-content:space-between;align-items:center;padding:.65rem 0;border-bottom:1px solid var(--b)}
+.rep-row:last-child{border:none}
+.rep-lbl{font-size:.82rem;color:var(--t2)}
+.rep-val{font-weight:700;font-size:.9rem}
+.sync-bar{background:rgba(61,184,122,.1);border:1px solid rgba(61,184,122,.25);border-radius:var(--r2);padding:.6rem .9rem;display:flex;align-items:center;gap:.5rem;margin-bottom:.8rem;font-size:.76rem;color:var(--green)}
+.sync-bar.err{background:rgba(224,82,82,.1);border-color:rgba(224,82,82,.25);color:var(--red)}
+.sync-bar.warn{background:rgba(224,144,64,.1);border-color:rgba(224,144,64,.25);color:var(--orange)}
+</style>
+</head>
+<body>
+
+<div id="login">
+  <div class="lb">
+    <div class="llogo">إنوثه</div>
+    <div class="lsub">لوحة إدارة المحل — ملوي/المنيا</div>
+    <label class="fl">🔑 كلمة المرور</label>
+    <input class="li" type="password" id="lp" placeholder="أدخل كلمة المرور" onkeydown="if(event.key==='Enter')login()">
+    <button class="lbtn" onclick="login()">دخول ←</button>
+    <div class="lerr" id="lerr">❌ كلمة المرور غلط</div>
+    <div class="lhint">الافتراضية: 1234</div>
+    <div class="fbstat fbload" id="fbstat">⏳ جاري الاتصال بـ Firebase...</div>
+  </div>
+</div>
+
+<div id="branch-sel">
+  <div class="bsel-logo">إنوثه</div>
+  <div class="bsel-title">اختر الفرع الذي تريد إدارته</div>
+  <button class="bsel-btn bsel-ladies" onclick="enterBranch('ladies')">
+    <span>👗 ملابس السيدات والبنات<br><span class="sub">فساتين، بلوزات، بناطيل، سبور</span></span>
+    <span style="font-size:1.5rem">←</span>
+  </button>
+  <button class="bsel-btn bsel-abaya" onclick="enterBranch('abaya')">
+    <span>🖤 كوليكشن العبايات<br><span class="sub">عبايات فاخرة، خمار، طرحة</span></span>
+    <span style="font-size:1.5rem">←</span>
+  </button>
+</div>
+
+<div id="app">
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:.4rem">
+      <div class="tlogo" id="tlogo">إنوثه</div>
+      <div class="tbranch-tag" id="tbranch-tag"></div>
+    </div>
+    <div class="tright">
+      <div class="tdate" id="tdate"></div>
+      <div style="display:flex;align-items:center;gap:.28rem" title="حالة Firebase">
+        <div class="fbdot fbdot-load" id="fbdot"></div>
+      </div>
+      <div style="position:relative;cursor:pointer" onclick="toggleNotif()">
+        <span style="font-size:1.05rem">🔔</span>
+        <div class="ndot" id="ndot"></div>
+      </div>
+      <button class="switch-branch" id="sw-btn" onclick="switchBranch()">تبديل الفرع</button>
+      <button class="tbtn" onclick="logout()">خروج</button>
+    </div>
+  </div>
+
+  <div class="page active" id="pg-dash">
+    <div class="pt" id="dash-title">🏪 لوحة التحكم</div>
+    <div class="ps" id="greet"></div>
+    <div id="sync-status"></div>
+    <div class="kgrid" id="d-kpis"></div>
+    <div id="d-alerts"></div>
+    <div class="card"><div class="ctitle">📊 مبيعات آخر 7 أيام <a onclick="goPage('pg-sales')">←</a></div><div class="chart" id="d-chart"></div></div>
+    <div class="ctitle" style="padding:.3rem 0 .5rem">🛒 طلبات معلقة <a onclick="goPage('pg-orders')">الكل ←</a></div><div id="d-orders"></div>
+    <div class="ctitle" style="padding:.3rem 0 .5rem">⚠️ مخزون يحتاج تجديد <a onclick="goPage('pg-stock')">المخزون ←</a></div><div id="d-low"></div>
+  </div>
+
+  <div class="page" id="pg-sales">
+    <div class="pt">📈 المبيعات</div>
+    <div class="ps">تسجيل ومتابعة المبيعات</div>
+    <div class="tabs" id="stabs">
+      <button class="tab on" onclick="setSTab(0)">نظرة عامة</button>
+      <button class="tab" onclick="setSTab(1)">➕ تسجيل بيع</button>
+      <button class="tab" onclick="setSTab(2)">السجل الكامل</button>
+    </div>
+    <div id="sbody"></div>
+  </div>
+
+  <div class="page" id="pg-stock">
+    <div class="pt">📦 إدارة المخزون</div>
+    <div class="ps">إضافة وتعديل الكميات — يتحدث الموقع فوراً ✅</div>
+    <div class="tabs" id="ittabs">
+      <button class="tab on" onclick="setITab(0)">المنتجات</button>
+      <button class="tab" onclick="setITab(1)">➕ منتج جديد</button>
+      <button class="tab" onclick="setITab(2)">سجل الحركة</button>
+    </div>
+    <div id="ibody"></div>
+  </div>
+
+  <div class="page" id="pg-acc">
+    <div class="pt">💰 الحسابات</div>
+    <div class="ps">نقدي، آجل، مصروفات، التزامات</div>
+    <div class="tabs" id="atabs">
+      <button class="tab on" onclick="setATab(0)">الميزانية</button>
+      <button class="tab" onclick="setATab(1)">التدفق النقدي</button>
+      <button class="tab" onclick="setATab(2)">الآجل</button>
+      <button class="tab" onclick="setATab(3)">الالتزامات</button>
+      <button class="tab" onclick="setATab(4)">➕ قيد جديد</button>
+      <button class="tab" onclick="setATab(5)">📊 تقارير</button>
+    </div>
+    <div id="abody"></div>
+  </div>
+
+  <div class="page" id="pg-orders">
+    <div class="pt">🛒 إدارة الطلبات</div>
+    <div class="ps">طلبات العملاء من الموقع — تحديث فوري 🔴</div>
+    <div class="chips" id="ochips"></div>
+    <div id="obody"></div>
+  </div>
+
+  <div class="page" id="pg-set">
+    <div class="pt">⚙️ الإعدادات</div>
+    <div class="ps">بيانات المحل وكلمة المرور</div>
+    <div class="card">
+      <div class="ctitle">بيانات المحل</div>
+      <div class="fg"><label class="fl">اسم المحل</label><input class="fi" id="st-name" value="إنوثه"></div>
+      <div class="fg"><label class="fl">العنوان</label><input class="fi" id="st-addr" value="ملوي/المنيا، شارع الشهيد كمال معزوز، أمام السنترال"></div>
+      <div class="fg"><label class="fl">رقم الهاتف</label><input class="fi" id="st-phone" value="010-003-80506"></div>
+      <div class="fg"><label class="fl">واتساب</label><input class="fi" id="st-wa" value="201000380506"></div>
+      <button class="btn btn-gold" onclick="saveSet()">💾 حفظ</button>
+    </div>
+    <div class="card" style="margin-top:.7rem">
+      <div class="ctitle">تغيير كلمة المرور</div>
+      <div class="fg"><label class="fl">الحالية</label><input class="fi" type="password" id="po"></div>
+      <div class="fg"><label class="fl">الجديدة</label><input class="fi" type="password" id="pn"></div>
+      <button class="btn btn-out" onclick="chgPass()">🔑 تغيير</button>
+    </div>
+  </div>
+
+  <div class="bnav">
+    <button class="nb on" id="nb-dash" onclick="goPage('pg-dash')"><span class="ic">🏪</span>الرئيسية</button>
+    <button class="nb" id="nb-sales" onclick="goPage('pg-sales')"><span class="ic">📈</span>المبيعات</button>
+    <button class="nb" id="nb-stock" onclick="goPage('pg-stock')"><span class="ic">📦</span>المخزون</button>
+    <button class="nb" id="nb-acc" onclick="goPage('pg-acc')"><span class="ic">💰</span>الحسابات</button>
+    <div style="flex:1;position:relative;display:flex">
+      <button class="nb" id="nb-orders" onclick="goPage('pg-orders')" style="width:100%"><span class="ic">🛒</span>الطلبات</button>
+      <div class="nbadge" id="obadge"></div>
+    </div>
+    <button class="nb" id="nb-set" onclick="goPage('pg-set')"><span class="ic">⚙️</span>إعدادات</button>
+  </div>
+</div>
+
+<div id="np" onclick="if(event.target===this)toggleNotif()">
+  <div class="nbox"><div class="ntitle">🔔 التنبيهات <button onclick="toggleNotif()" style="color:var(--t2);font-size:1.1rem">✕</button></div><div id="nlist"></div></div>
+</div>
+<div id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════
+//  FIREBASE INIT
+// ══════════════════════════════════════════
+// ══ FIREBASE LAZY LOAD ══
+window.addEventListener('load', function() {
+  const s1 = document.createElement('script');
+  s1.src = 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js';
+  s1.onload = function() {
+    const s2 = document.createElement('script');
+    s2.src = 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js';
+    s2.onload = function() { initFirebase(); };
+    document.head.appendChild(s2);
+  };
+  document.head.appendChild(s1);
+});
+
+function initFirebase() {
+  try {
+    if (firebase.apps.length) return;
+    firebase.initializeApp(firebaseConfig);
+    window._db = firebase.database();
+    window._// Firebase connected listener moved to initFirebase()
+  } catch(e) { console.warn('FB:', e); }
+}
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAb5F56079387_iS5WtnMsJ97NcdkfCqfo",
+  authDomain: "inotha-cc79c.firebaseapp.com",
+  databaseURL: "https://inotha-cc79c-default-rtdb.firebaseio.com",
+  projectId: "inotha-cc79c",
+  storageBucket: "inotha-cc79c.firebasestorage.app",
+  messagingSenderId: "678432411006",
+  appId: "1:678432411006:web:ac0104ed0ed02778bcf72f"
+};
+const db = { ref: p => window._db ? window._db.ref(p) : {on:()=>{},once:()=>Promise.resolve({val:()=>null}),push:()=>Promise.resolve({key:"local_"+Date.now()}),set:()=>Promise.resolve(),update:()=>Promise.resolve(),remove:()=>Promise.resolve()} };
+
+let FB_CONNECTED = false;
+db.ref('.info/connected').on('value', snap => {
+  FB_CONNECTED = snap.val() === true;
+  const dot = el('fbdot'), stat = el('fbstat');
+  if(FB_CONNECTED){
+    dot && (dot.className='fbdot fbdot-on');
+    stat && (stat.className='fbstat fbconn', stat.textContent='✅ متصل بـ Firebase — البيانات تتزامن فوراً');
+  } else {
+    dot && (dot.className='fbdot fbdot-off');
+    stat && (stat.className='fbstat fbdis', stat.textContent='❌ غير متصل — تحقق من الإنترنت');
+  }
+  if(el('sync-status') && CUR) updateSyncBar();
+});
+
+// ══════════════════════════════════════════
+//  STATE & HELPERS
+// ══════════════════════════════════════════
+let CUR = 'ladies';
+const el = id => document.getElementById(id);
+const fmt = n => Math.round(n||0).toLocaleString('ar-EG');
+const dStr = (d=new Date()) => d.toLocaleDateString('ar-EG');
+const ts = () => Date.now();
+const getPass = () => { try{return JSON.parse(localStorage.getItem('ina_pass'))||'1234'}catch{return'1234'} };
+
+// ══════════════════════════════════════════
+//  FIREBASE READ/WRITE HELPERS
+// ══════════════════════════════════════════
+// Each branch has its own node: /ladies/ and /abaya/
+const ref  = path => db.ref(`${CUR}/${path}`);
+const rget = path => ref(path).once('value').then(s=>s.val());
+const rset = (path,val) => ref(path).set(val);
+const rpush = (path,val) => ref(path).push(val);
+const rdel  = path => ref(path).remove();
+
+// In-memory cache (updated by listeners)
+let DATA = { stock:{}, sales:[], txns:[], creds:[], obligs:[], orders:[], custom:[] };
+
+// Default products
+const PRODS_LADIES=[
+  {id:'p1',name:'فستان سهرة كلاسيك',cat:'فساتين',price:850,emoji:'👗'},
+  {id:'p2',name:'بلوزة كاجوال مطبوعة',cat:'بلوزات',price:320,emoji:'👚'},
+  {id:'p3',name:'فستان ماكسي صيفي',cat:'فساتين',price:680,emoji:'🌸'},
+  {id:'p4',name:'بنطلون جينز مودرن',cat:'بناطيل',price:480,emoji:'👖'},
+  {id:'p5',name:'تيشيرت أوفر سايز',cat:'بلوزات',price:250,emoji:'👕'},
+  {id:'p6',name:'فستان بنات مزركش',cat:'بنات',price:350,emoji:'🎀'},
+  {id:'p7',name:'تنورة بلييه ميدي',cat:'بناطيل',price:420,emoji:'💃'},
+  {id:'p8',name:'طقم رياضي سبور',cat:'سبور',price:590,emoji:'🏃'},
+];
+const PRODS_ABAYA=[
+  {id:'a1',name:'عباية خليجية فاخرة',cat:'عبايات كلاسيك',price:1200,emoji:'🖤'},
+  {id:'a2',name:'عباية كيمونو مطرزة',cat:'عبايات مطرزة',price:1800,emoji:'✨'},
+  {id:'a3',name:'عباية كاجوال يومية',cat:'عبايات كاجوال',price:680,emoji:'👘'},
+  {id:'a4',name:'عباية ساتان ملكي',cat:'عبايات كلاسيك',price:2400,emoji:'💜'},
+  {id:'a5',name:'سيت عباية وطرحة',cat:'سيت كامل',price:950,emoji:'🧕'},
+  {id:'a6',name:'عباية بيضاء تفصيل',cat:'عبايات كيمونو',price:1100,emoji:'🤍'},
+  {id:'a7',name:'خمار جيرسي مطاط',cat:'خمار وطرحة',price:180,emoji:'🕊️'},
+  {id:'a8',name:'عباية رمضان الملكية',cat:'عبايات مطرزة',price:2100,emoji:'🌙'},
+];
+const DEF_PRODS = () => CUR==='ladies' ? PRODS_LADIES : PRODS_ABAYA;
+const allP = () => [...DEF_PRODS(), ...(DATA.custom||[])];
+
+// ══════════════════════════════════════════
+//  REALTIME LISTENERS
+// ══════════════════════════════════════════
+let listeners = [];
+function attachListeners(){
+  listeners.forEach(off => off());
+  listeners = [];
+  const listen = (path, key, transform) => {
+    const r = db.ref(`${CUR}/${path}`);
+    const fn = r.on('value', snap => {
+      const v = snap.val();
+      DATA[key] = transform ? transform(v) : (v||[]);
+      if(el('pg-dash').classList.contains('active')) renderDash();
+      if(key==='orders') checkNotifs();
+      if(key==='stock' && el('pg-stock').classList.contains('active')) renderStock();
+    });
+    listeners.push(() => r.off('value', fn));
+  };
+  listen('stock','stock', v=>v||{});
+  listen('sales','sales', v=>v?Object.values(v):[]);
+  listen('txns','txns', v=>v?Object.values(v):[]);
+  listen('creds','creds', v=>v?Object.values(v):[]);
+  listen('obligs','obligs', v=>v?Object.values(v):[]);
+  listen('orders','orders', v=>v?Object.values(v):[]);
+  listen('custom','custom', v=>v?Object.values(v):[]);
+  // Init stock for new products
+  DEF_PRODS().forEach(async p=>{
+    const s = await rget(`stock/${p.id}`);
+    if(s===null) rset(`stock/${p.id}`,100);
+  });
+}
+
+// ══════════════════════════════════════════
+//  AUTH
+// ══════════════════════════════════════════
+function login(){
+  if(el('lp').value===getPass()){
+    el('login').style.display='none';
+    el('branch-sel').style.display='flex';
+  } else el('lerr').style.display='block';
+}
+function enterBranch(br){
+  CUR=br;
+  el('branch-sel').style.display='none';
+  el('app').style.display='block';
+  applyBranding(); attachListeners(); initApp();
+}
+function switchBranch(){el('app').style.display='none';el('branch-sel').style.display='flex';listeners.forEach(off=>off());listeners=[]}
+function logout(){el('login').style.display='flex';el('branch-sel').style.display='none';el('app').style.display='none';el('lp').value='';listeners.forEach(off=>off());listeners=[]}
+function applyBranding(){
+  const L=CUR==='ladies';
+  el('tlogo').className='tlogo '+(L?'tlogo-l':'tlogo-a');
+  el('tbranch-tag').className='tbranch-tag '+(L?'tt-l':'tt-a');
+  el('tbranch-tag').textContent=L?'👗 سيدات':'🖤 عبايات';
+  el('sw-btn').className='switch-branch '+(L?'sw-l':'sw-a');
+  el('dash-title').textContent=L?'🏪 لوحة تحكم — سيدات':'🏪 لوحة تحكم — عبايات';
+}
+function updateSyncBar(){
+  const ss=el('sync-status');if(!ss)return;
+  ss.innerHTML=FB_CONNECTED?
+    `<div class="sync-bar">🟢 متصل بـ Firebase — أي تعديل في المخزون يظهر على الموقع فوراً</div>`:
+    `<div class="sync-bar err">🔴 غير متصل — التعديلات ستُزامَن عند عودة الإنترنت</div>`;
+}
+function saveSet(){
+  const s={name:el('st-name').value,addr:el('st-addr').value,phone:el('st-phone').value,wa:el('st-wa').value};
+  localStorage.setItem('ina_set',JSON.stringify(s));
+  db.ref('settings').set(s);
+  toast('✅ تم الحفظ وتحديث الموقع');
+}
+function chgPass(){if(el('po').value!==getPass()){toast('كلمة المرور الحالية غلط','r');return}if(!el('pn').value||el('pn').value.length<4){toast('كلمة السر قصيرة','r');return}localStorage.setItem('ina_pass',JSON.stringify(el('pn').value));toast('✅ تم التغيير');el('po').value='';el('pn').value=''}
+
+// ══════════════════════════════════════════
+//  NAV
+// ══════════════════════════════════════════
+const navMap={'pg-dash':'nb-dash','pg-sales':'nb-sales','pg-stock':'nb-stock','pg-acc':'nb-acc','pg-orders':'nb-orders','pg-set':'nb-set'};
+const rendMap={'pg-dash':()=>renderDash(),'pg-sales':()=>renderSales(),'pg-stock':()=>renderStock(),'pg-acc':()=>renderAcc(),'pg-orders':()=>renderOrders()};
+function goPage(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));el(id).classList.add('active');document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));if(navMap[id])el(navMap[id])?.classList.add('on');window.scrollTo(0,0);if(rendMap[id])rendMap[id]()}
+function initApp(){const d=new Date();el('tdate').textContent=d.toLocaleDateString('ar-EG',{weekday:'short',month:'long',day:'numeric'});renderDash();checkNotifs();updateSyncBar()}
+
+// ══════════════════════════════════════════
+//  NOTIFICATIONS
+// ══════════════════════════════════════════
+function checkNotifs(){
+  const stock=DATA.stock,prods=allP(),orders=DATA.orders,creds=DATA.creds;
+  const notifs=[];
+  prods.forEach(p=>{const q=stock[p.id]||0,a=p.alertAt||5;
+    if(q<=0)notifs.push({ico:'🚨',t:`نفذ المخزون: ${p.name}`,s:'الكمية: 0'});
+    else if(q<=a)notifs.push({ico:'⚠️',t:`مخزون منخفض: ${p.name}`,s:`الكمية: ${q}`});
+  });
+  const pend=(orders||[]).filter(o=>o.status==='pending');
+  if(pend.length)notifs.push({ico:'🛒',t:`${pend.length} طلب جديد`,s:'افتح الطلبات وأكدها'});
+  const debt=(creds||[]).reduce((a,c)=>a+(c.amount-(c.paid||0)),0);
+  if(debt>0)notifs.push({ico:'📒',t:`ديون: ${fmt(debt)} ج`,s:`${creds.length} عميل`});
+  el('ndot').className='ndot'+(notifs.length?' on':'');
+  const badge=el('obadge');pend.length?(badge.textContent=pend.length,badge.classList.add('show')):badge.classList.remove('show');
+  el('nlist').innerHTML=!notifs.length?`<div class="empty"><div class="eico">✅</div><h3>لا توجد تنبيهات</h3></div>`
+    :notifs.map(n=>`<div class="ni"><div class="nit">${n.ico} ${n.t}</div><div class="nis">${n.s}</div></div>`).join('');
+}
+function toggleNotif(){const p=el('np');p.style.display=p.style.display==='block'?'none':'block';if(p.style.display==='block')checkNotifs()}
+
+// ══════════════════════════════════════════
+//  DASHBOARD
+// ══════════════════════════════════════════
+function sqC(q,a=5){return q<=0?'sc-out':q<=a?'sc-dng':q<=20?'sc-low':'sc-ok'}
+function snC(q,a=5){return q<=0?'out':q<=a?'dng':q<=20?'low':'ok'}
+function sfC(q,a=5){return q<=0?'sf-out':q<=a?'sf-dng':q<=20?'sf-low':'sf-ok'}
+function spct(q){return Math.min(100,q/200*100)}
+function renderDash(){
+  updateSyncBar();
+  const sales=DATA.sales||[],stock=DATA.stock||{},creds=DATA.creds||[],orders=DATA.orders||[],txns=DATA.txns||[];
+  const d=new Date(),todayS=dStr(),mn=d.getMonth(),yr=d.getFullYear();
+  const todayArr=sales.filter(s=>s.dateStr===todayS);
+  const monthArr=sales.filter(s=>{const sd=new Date(s.ts);return sd.getMonth()===mn&&sd.getFullYear()===yr});
+  const todayNet=todayArr.filter(s=>s.type!=='return').reduce((a,b)=>a+b.amount,0)-todayArr.filter(s=>s.type==='return').reduce((a,b)=>a+b.amount,0);
+  const monthRev=monthArr.filter(s=>s.type!=='return').reduce((a,b)=>a+b.amount,0);
+  const totalCred=creds.reduce((a,c)=>a+(c.amount-(c.paid||0)),0);
+  const pendN=(orders||[]).filter(o=>o.status==='pending').length;
+  const h=d.getHours();
+  el('greet').textContent=(h<12?'صباح الخير':h<18?'مساء الخير':'مساء النور')+' 👋 — '+todayS;
+  el('d-kpis').innerHTML=`
+    <div class="kpi kg"><div class="kico">💵</div><div class="kval">${fmt(todayNet)}</div><div class="klbl">مبيعات اليوم (ج)</div></div>
+    <div class="kpi kg2"><div class="kico">📅</div><div class="kval">${fmt(monthRev)}</div><div class="klbl">مبيعات الشهر</div></div>
+    <div class="kpi kg3"><div class="kico">📒</div><div class="kval">${fmt(totalCred)}</div><div class="klbl">ديون العملاء (ج)</div></div>
+    <div class="kpi kg4"><div class="kico">🛒</div><div class="kval">${pendN}</div><div class="klbl">طلبات تنتظر</div></div>`;
+  const prods=allP();
+  const outP=prods.filter(p=>(stock[p.id]||0)<=0);
+  const lowP=prods.filter(p=>{const q=stock[p.id]||0;return q>0&&q<=(p.alertAt||5)});
+  let alerts='';
+  if(outP.length)alerts+=`<div class="al alr"><div class="aic">🚨</div><div class="atx"><strong>${outP.length} منتج نفذ من المخزون</strong><small>${outP.slice(0,4).map(p=>p.emoji+' '+p.name).join(' | ')}</small></div></div>`;
+  if(lowP.length)alerts+=`<div class="al alw"><div class="aic">⚠️</div><div class="atx"><strong>${lowP.length} منتج وصل حد التنبيه</strong><small>${lowP.map(p=>p.emoji+p.name+'('+(stock[p.id]||0)+')').join(' | ')}</small></div></div>`;
+  if(!alerts)alerts=`<div class="al alg"><div class="aic">✅</div><div class="atx"><strong>المخزون في حالة جيدة</strong><small>جميع المنتجات متوفرة</small></div></div>`;
+  el('d-alerts').innerHTML=alerts;
+  const cd=[];for(let i=6;i>=0;i--){const dd=new Date(d);dd.setDate(dd.getDate()-i);const ds=dd.toLocaleDateString('ar-EG');const lbl=i===0?'اليوم':dd.toLocaleDateString('ar-EG',{weekday:'short'});const val=sales.filter(s=>s.dateStr===ds&&s.type!=='return').reduce((a,b)=>a+b.amount,0);cd.push({lbl,val})}
+  const mx=Math.max(...cd.map(c=>c.val),1);
+  el('d-chart').innerHTML=cd.map(c=>{const h=Math.max(3,Math.round(c.val/mx*100));return`<div class="bc"><div class="bv">${c.val>0?(c.val/1000).toFixed(1)+'k':''}</div><div class="bw"><div class="b bgold" style="height:${h}%"></div></div><div class="bl2">${c.lbl}</div></div>`}).join('');
+  const pend=(orders||[]).filter(o=>o.status==='pending').slice(-3).reverse();
+  el('d-orders').innerHTML=!pend.length?`<div class="al alg"><div class="aic">✅</div><div class="atx"><strong>لا توجد طلبات معلقة</strong></div></div>`
+    :pend.map(o=>`<div class="oc"><div class="och"><div class="oid">#${String(o.id||'').slice(-4)}</div><div class="spill sp">⏳ معلق</div></div><div class="ometa">👤 ${o.name} | 📞 ${o.phone}<br>${o.dateStr} | 💰 ${fmt(o.total)} ج</div><div style="display:flex;gap:.42rem"><button class="btn btn-green btn-sm" onclick="updOrd('${o.id}','confirmed')">✅ تأكيد</button><button class="btn btn-red btn-sm" onclick="updOrd('${o.id}','cancelled')">❌ إلغاء</button></div></div>`).join('');
+  const low=prods.filter(p=>(stock[p.id]||0)<=20).sort((a,b)=>(stock[a.id]||0)-(stock[b.id]||0)).slice(0,3);
+  el('d-low').innerHTML=!low.length?'':low.map(p=>{const q=stock[p.id]||0,a=p.alertAt||5;return`<div class="sc ${sqC(q,a)}"><div class="scr"><div class="sem">${p.emoji}</div><div class="sin"><div class="snm">${p.name}</div><div class="smt">${p.cat} · ${fmt(p.price)} ج</div></div><div class="sqw"><div class="sqn ${snC(q,a)}">${q||'نفذ'}</div></div></div></div>`}).join('');
+  checkNotifs();
+}
+
+// ══════════════════════════════════════════
+//  SALES
+// ══════════════════════════════════════════
+let sTab=0,sPer='today',sType='cash';
+function setSTab(i){sTab=i;document.querySelectorAll('#stabs .tab').forEach((b,j)=>b.classList.toggle('on',i===j));renderSales()}
+function renderSales(){
+  const all=DATA.sales||[],d=new Date(),todayS=dStr(),mn=d.getMonth(),yr=d.getFullYear();
+  const filt=p=>{if(p==='today')return all.filter(s=>s.dateStr===todayS);if(p==='week')return all.filter(s=>(d-new Date(s.ts))<7*86400000);if(p==='month')return all.filter(s=>{const sd=new Date(s.ts);return sd.getMonth()===mn&&sd.getFullYear()===yr});return all};
+  const f=filt(sPer);
+  const cash=f.filter(s=>s.type==='cash').reduce((a,b)=>a+b.amount,0);
+  const cred=f.filter(s=>s.type==='credit').reduce((a,b)=>a+b.amount,0);
+  const ret=f.filter(s=>s.type==='return').reduce((a,b)=>a+b.amount,0);
+  const pbar=`<div class="chips">${[['today','اليوم'],['week','الأسبوع'],['month','الشهر'],['all','الكل']].map(([k,l])=>`<button class="chip ${sPer===k?'on':''}" onclick="sPer='${k}';renderSales()">${l}</button>`).join('')}</div>`;
+  let html='';
+  if(sTab===0){
+    const md=[];for(let i=5;i>=0;i--){const dd=new Date(d.getFullYear(),d.getMonth()-i,1);const lbl=dd.toLocaleDateString('ar-EG',{month:'short'});const val=all.filter(s=>{const sd=new Date(s.ts);return sd.getMonth()===dd.getMonth()&&sd.getFullYear()===dd.getFullYear()&&s.type!=='return'}).reduce((a,b)=>a+b.amount,0);md.push({lbl,val})}
+    const mx=Math.max(...md.map(m=>m.val),1);
+    html=`${pbar}<div class="kgrid"><div class="kpi kg"><div class="kico">💵</div><div class="kval">${fmt(cash+cred-ret)}</div><div class="klbl">صافي</div></div><div class="kpi kg2"><div class="kico">💰</div><div class="kval">${fmt(cash)}</div><div class="klbl">نقدي</div></div><div class="kpi kg3"><div class="kico">📒</div><div class="kval">${fmt(cred)}</div><div class="klbl">آجل</div></div><div class="kpi kg5"><div class="kico">🔄</div><div class="kval">${fmt(ret)}</div><div class="klbl">مرتجعات</div></div></div>
+    <div class="card"><div class="ctitle">📊 آخر 6 شهور</div><div class="chart">${md.map(m=>{const h=Math.max(3,Math.round(m.val/mx*100));return`<div class="bc"><div class="bv">${m.val>0?(m.val/1000).toFixed(0)+'k':''}</div><div class="bw"><div class="b bgold" style="height:${h}%"></div></div><div class="bl2">${m.lbl}</div></div>`}).join('')}</div></div>
+    <div class="card"><div class="ctitle">آخر العمليات</div>${!f.length?'<p style="color:var(--t3);font-size:.8rem;text-align:center;padding:1rem">لا توجد مبيعات</p>':f.slice(-6).reverse().map(s=>`<div class="tr t${s.type==='cash'?'i':s.type==='credit'?'c':'e'}"><div class="tic">${s.type==='cash'?'💵':s.type==='credit'?'📒':'🔄'}</div><div class="tin"><div class="td">${s.desc}</div><div class="tm">${s.dateStr}${s.client?' · '+s.client:''}</div></div><div class="ta">${s.type==='return'?'-':''}${fmt(s.amount)} ج</div></div>`).join('')}</div>`;
+  } else if(sTab===1){
+    const prods=allP(),stock=DATA.stock||{};
+    html=`<div class="card"><div class="ctitle" style="margin-bottom:1rem">تسجيل بيع جديد</div>
+    <div class="fg"><label class="fl">📌 نوع العملية</label><div class="tg"><button class="to2 tcash sel" id="st-cash" onclick="setSType('cash')">💵<br>نقدي</button><button class="to2 tcred" id="st-cred" onclick="setSType('credit')">📒<br>آجل</button><button class="to2 tret" id="st-ret" onclick="setSType('return')">🔄<br>مرتجع</button></div></div>
+    <div class="fg"><label class="fl">🔗 اختر من المخزون</label><select class="fs" id="sp" onchange="autoFillS()"><option value="">-- اختر منتج --</option>${prods.map(p=>`<option value="${p.id}">${p.emoji} ${p.name} | متبقي: ${stock[p.id]||0} | ${fmt(p.price)} ج</option>`).join('')}</select></div>
+    <div class="fg"><label class="fl">📝 وصف البيع *</label><input class="fi" id="sd" placeholder="فستان سواريه ذهبي"></div>
+    <div class="frow"><div class="fg"><label class="fl">💰 سعر القطعة *</label><input class="fi" type="number" id="spr" placeholder="0" oninput="updTotal()"></div><div class="fg"><label class="fl">🔢 الكمية</label><input class="fi" type="number" id="sq" value="1" min="1" oninput="updTotal()"></div></div>
+    <div class="prevbox" id="stot"><span id="stotv"></span></div>
+    <div class="fg" id="scgrp" style="display:none"><label class="fl">👤 اسم العميل *</label><input class="fi" id="sc" placeholder="اسم العميل"></div>
+    <div class="fg"><label class="fl">📋 ملاحظات</label><input class="fi" id="sn2" placeholder="لون، مقاس..."></div>
+    <button class="btn btn-gold" onclick="recordSale()">✅ تأكيد البيع</button></div>`;
+  } else {
+    html=`${pbar}${!f.length?`<div class="empty"><div class="eico">📋</div><h3>لا توجد مبيعات</h3></div>`:f.slice().reverse().map((s,i)=>`<div class="tr t${s.type==='cash'?'i':s.type==='credit'?'c':'e'}"><div class="tic">${s.type==='cash'?'💵':s.type==='credit'?'📒':'🔄'}</div><div class="tin"><div class="td">${s.desc}</div><div class="tm">${s.dateStr}${s.client?' · '+s.client:''}</div></div><div style="display:flex;align-items:center;gap:.33rem"><div class="ta">${s.type==='return'?'-':''}${fmt(s.amount)} ج</div><button class="ibtn dbtn" onclick="delSale('${s._key}')">🗑️</button></div></div>`).join('')}`;
+  }
+  el('sbody').innerHTML=html;
+}
+function setSType(t){sType=t;['cash','cred','ret'].forEach(x=>{const b=el('st-'+x);if(!b)return;const cm={cash:'tcash',cred:'tcred',ret:'tret'};const mm={cash:'cash',cred:'credit',ret:'return'};b.className=`to2 ${cm[x]}${mm[x]===t?' sel':''}`});const cg=el('scgrp');if(cg)cg.style.display=t==='credit'?'block':'none'}
+function autoFillS(){const id=el('sp')?.value;if(!id)return;const p=allP().find(x=>x.id==id);if(!p)return;el('sd').value=p.name;el('spr').value=p.price;updTotal()}
+function updTotal(){const pr=parseFloat(el('spr')?.value)||0,qty=parseInt(el('sq')?.value)||1;const tp=el('stot'),tv=el('stotv');if(tp&&tv){tp.style.display=pr>0?'block':'none';tv.textContent=`الإجمالي: ${fmt(pr*qty)} جنيه`}}
+async function recordSale(){
+  const desc=el('sd')?.value.trim(),price=parseFloat(el('spr')?.value),qty=parseInt(el('sq')?.value)||1;
+  const client=el('sc')?.value.trim(),note=el('sn2')?.value.trim(),prodId=el('sp')?.value,type=sType;
+  if(!desc){toast('أدخل وصف البيع','r');return}if(!price||price<=0){toast('أدخل سعر صحيح','r');return}if(type==='credit'&&!client){toast('أدخل اسم العميل','r');return}
+  const amount=price*qty;
+  const sale={ts:ts(),dateStr:dStr(),desc,price,qty,amount,type,client:client||'',note:note||'',prodId:prodId||''};
+  await rpush('sales',sale);
+  if(prodId){
+    const curQ=(await rget(`stock/${prodId}`))||0;
+    const newQ=type!=='return'?Math.max(0,curQ-qty):curQ+qty;
+    await rset(`stock/${prodId}`,newQ); // ← updates website instantly
+    const prod=allP().find(p=>p.id==prodId);
+    if(prod&&newQ<=0)toast(`🚨 نفذ مخزون "${prod.name}"!`,'r');
+    else if(prod&&newQ<=(prod.alertAt||5))toast(`⚠️ "${prod.name}" — ${newQ} قطعة`);
+  }
+  if(type==='credit'){
+    const creds=DATA.creds||[];const ex=creds.find(c=>c.name===client);
+    if(ex&&ex._key){await db.ref(`${CUR}/creds/${ex._key}`).update({amount:ex.amount+amount,lastDate:dStr()})}
+    else await rpush('creds',{name:client,amount,paid:0,date:dStr(),lastDate:dStr()});
+  }
+  toast(`✅ تم — ${fmt(amount)} ج`,'g');sTab=0;renderSales();
+}
+async function delSale(key){if(!key||!confirm('حذف؟'))return;await db.ref(`${CUR}/sales/${key}`).remove();toast('تم الحذف','r')}
+
+// ══════════════════════════════════════════
+//  STOCK
+// ══════════════════════════════════════════
+let iTab=0,sFilter='all';
+function setITab(i){iTab=i;document.querySelectorAll('#ittabs .tab').forEach((b,j)=>b.classList.toggle('on',i===j));renderStock()}
+function renderStock(){
+  const stock=DATA.stock||{},prods=allP();
+  let html='';
+  if(iTab===0){
+    const cats=['all',...new Set(prods.map(p=>p.cat))];
+    const filtered=sFilter==='all'?prods:prods.filter(p=>p.cat===sFilter);
+    const out=prods.filter(p=>(stock[p.id]||0)<=0).length;
+    const val=prods.reduce((a,p)=>a+(stock[p.id]||0)*p.price,0);
+    html=`<div class="al alg" style="margin-bottom:.8rem"><div class="aic">🔗</div><div class="atx"><strong>مرتبط بـ Firebase — التغييرات تظهر على الموقع فوراً</strong><small>عدّل الكميات وسيتحدث موقع العملاء في الحال</small></div></div>
+    <div class="kgrid"><div class="kpi kg"><div class="kico">📦</div><div class="kval">${prods.length}</div><div class="klbl">إجمالي المنتجات</div></div><div class="kpi kg2"><div class="kico">✅</div><div class="kval">${prods.filter(p=>(stock[p.id]||0)>20).length}</div><div class="klbl">متوفر</div></div><div class="kpi kg5"><div class="kico">🚨</div><div class="kval">${out}</div><div class="klbl">نفذ</div></div><div class="kpi kg6"><div class="kico">💎</div><div class="kval">${fmt(val/1000)}K</div><div class="klbl">قيمة المخزون</div></div></div>
+    <div class="chips">${cats.map(c=>`<button class="chip ${sFilter===c?'on':''}" onclick="sFilter='${c}';renderStock()">${c==='all'?'🔍 الكل':c}</button>`).join('')}</div>
+    ${filtered.sort((a,b)=>(stock[a.id]||0)-(stock[b.id]||0)).map(p=>stockCard(p,stock)).join('')}`;
+  } else if(iTab===1){
+    const cats=CUR==='ladies'?['فساتين','بلوزات','بناطيل','سبور','بنات','إكسسوار']:['عبايات كلاسيك','عبايات مطرزة','عبايات كاجوال','عبايات كيمونو','خمار وطرحة','سيت كامل'];
+    html=`<div class="card"><div class="ctitle" style="margin-bottom:1rem">إضافة منتج جديد</div>
+    <div class="fg"><label class="fl">📝 اسم المنتج *</label><input class="fi" id="nn" placeholder="اسم المنتج" oninput="el('pnm').textContent=this.value||'اسم المنتج'"></div>
+    <div class="frow"><div class="fg"><label class="fl">💰 سعر البيع *</label><input class="fi" type="number" id="npr" placeholder="0"></div><div class="fg"><label class="fl">🔢 الكمية الأولية *</label><input class="fi" type="number" id="nq" placeholder="0"></div></div>
+    <div class="frow"><div class="fg"><label class="fl">⚠️ حد التنبيه</label><input class="fi" type="number" id="na" value="5"></div><div class="fg"><label class="fl">📂 الفئة *</label><select class="fs" id="ncat">${cats.map(c=>`<option>${c}</option>`).join('')}</select></div></div>
+    <div class="fg"><label class="fl">🎨 أيقونة</label><div class="epick" id="epick">${['👗','👚','👖','🎀','🖤','✨','🌸','👘','🧕','💜','🤍','🌙','💃','👕','🕊️','💎','🌺','🏃'].map((e,i)=>`<button class="ep ${i===0?'on':''}" onclick="pickEm('${e}',this)">${e}</button>`).join('')}</div><input type="hidden" id="nem" value="👗"></div>
+    <div style="background:var(--bg);border:1px solid var(--b);border-radius:var(--r2);padding:.68rem;text-align:center;margin-bottom:.82rem"><span id="pem" style="font-size:1.75rem">👗</span><span id="pnm" style="font-weight:700;margin-right:.5rem;font-size:.9rem">اسم المنتج</span></div>
+    <button class="btn btn-gold" onclick="addProd()">💾 حفظ وإضافة للموقع</button></div>`;
+  } else {
+    html=`<div class="empty"><div class="eico">📋</div><h3>سجل الحركة</h3><p>كل تعديل في الكميات يُسجَّل في Firebase</p></div>`;
+  }
+  el('ibody').innerHTML=html;
+}
+function stockCard(p,stock){const q=stock[p.id]||0,a=p.alertAt||5;return`<div class="sc ${sqC(q,a)}"><div class="scr"><div class="sem">${p.emoji}</div><div class="sin"><div class="snm">${p.name}</div><div class="smt">${p.cat} · ${fmt(p.price)} ج</div></div><div class="sqw"><div class="sqn ${snC(q,a)}">${q||'نفذ'}</div>${q>0?`<div class="sunit">قطعة</div>`:''}</div></div><div class="sbar"><div class="sfill ${sfC(q,a)}" style="width:${spct(q)}%"></div></div><div class="sctrl"><div class="sclbl">تعديل:</div><div class="qw"><button class="qr" onclick="adjS('${p.id}',-1)">−</button><input class="qf" type="number" id="qf${p.id}" value="1" min="1"><button class="qa" onclick="adjS('${p.id}',+1)">+</button></div><button class="setq" onclick="setQ('${p.id}')">تحديد رقم</button></div></div>`}
+async function adjS(id,dir){
+  const n=parseInt(el('qf'+id)?.value)||1;
+  const curQ=(await rget(`stock/${id}`))||0;
+  const newQ=Math.max(0,curQ+dir*n);
+  await rset(`stock/${id}`,newQ);
+  const p=allP().find(x=>x.id==id);
+  toast(dir>0?`📥 أُضيف ${n} — المخزون: ${newQ}`:`📤 سُحب ${n} — المخزون: ${newQ}`,newQ<=0?'r':newQ<=(p?.alertAt||5)?'':'g');
+}
+async function setQ(id){
+  const v=parseInt(prompt('أدخل الكمية الجديدة بالضبط:'));
+  if(isNaN(v)||v<0){toast('رقم غير صحيح','r');return}
+  await rset(`stock/${id}`,v);
+  toast(`✅ تم التحديث إلى ${v} قطعة — الموقع تحدّث فوراً`,'g');
+}
+function pickEm(e,btn){document.querySelectorAll('.ep').forEach(b=>b.classList.remove('on'));btn.classList.add('on');el('nem').value=e;el('pem').textContent=e}
+async function addProd(){
+  const name=el('nn')?.value.trim(),price=parseFloat(el('npr')?.value),qty=parseInt(el('nq')?.value)||0;
+  if(!name){toast('أدخل اسم المنتج','r');return}if(!price||price<=0){toast('أدخل سعر صحيح','r');return}
+  const prod={id:'c'+ts(),name,price,alertAt:parseInt(el('na')?.value)||5,cat:el('ncat')?.value,emoji:el('nem')?.value||'👗'};
+  await rpush('custom',prod);
+  await rset(`stock/${prod.id}`,qty);
+  toast(`✅ "${name}" أُضيف للموقع فوراً`,'g');iTab=0;renderStock();
+}
+
+// ══════════════════════════════════════════
+//  ACCOUNTS
+// ══════════════════════════════════════════
+let aTab=0,tType='income';
+function setATab(i){aTab=i;document.querySelectorAll('#atabs .tab').forEach((b,j)=>b.classList.toggle('on',i===j));renderAcc()}
+function renderAcc(){
+  const sales=DATA.sales||[],txns=DATA.txns||[],creds=DATA.creds||[],obligs=DATA.obligs||[];
+  const rev=sales.filter(s=>s.type!=='return').reduce((a,b)=>a+b.amount,0);
+  const ret=sales.filter(s=>s.type==='return').reduce((a,b)=>a+b.amount,0);
+  const exp=txns.filter(t=>t.type==='expense').reduce((a,b)=>a+b.amount,0);
+  const inc=txns.filter(t=>t.type==='income').reduce((a,b)=>a+b.amount,0);
+  const cred=creds.reduce((a,c)=>a+(c.amount-(c.paid||0)),0);
+  const ob=obligs.filter(o=>!o.done).reduce((a,o)=>a+o.remaining,0);
+  const cash=rev-ret+inc-exp;
+  let html='';
+  if(aTab===0){html=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:.62rem;margin-bottom:.72rem"><div class="fc fc-g"><h4>💵 النقدية</h4><div class="fcv">${fmt(cash)}</div></div><div class="fc fc-gold"><h4>📈 صافي الربح</h4><div class="fcv">${fmt(cash-ob)}</div></div><div class="fc fc-o"><h4>📒 الديون</h4><div class="fcv">${fmt(cred)}</div></div><div class="fc fc-b"><h4>📋 الالتزامات</h4><div class="fcv">${fmt(ob)}</div></div></div><div class="card"><div class="ctitle">تفصيل</div>${[['💰 إجمالي المبيعات','i',fmt(rev)],['🔄 مرتجعات','-',fmt(ret)],['💵 دخل إضافي','i',fmt(inc)],['📤 المصروفات','-',fmt(exp)]].map(([l,t,v])=>`<div class="rep-row"><div class="rep-lbl">${l}</div><div class="rep-val" style="color:${t==='i'?'var(--green)':'var(--red)'}">${t==='-'?'- ':''}${v} ج</div></div>`).join('')}<div class="rep-row" style="border-top:2px solid var(--b);margin-top:.3rem;padding-top:.7rem"><div class="rep-lbl" style="font-weight:700">💵 الصافي</div><div class="rep-val" style="color:var(--gold)">${fmt(cash)} ج</div></div></div>`}
+  else if(aTab===1){const all=[...sales.map(s=>({...s,_t:s.type==='return'?'e':'i',_d:(s.type==='return'?'🔄 ':'💵 ')+s.desc})),...txns.map(t=>({...t,_t:t.type==='income'?'i':'e',_d:(t.type==='income'?'💰 ':'📤 ')+t.desc}))].sort((a,b)=>b.ts-a.ts);html=`<div class="card"><div class="ctitle">كل الحركات (${all.length})</div>${!all.length?'<p style="color:var(--t3);text-align:center;padding:1rem;font-size:.8rem">لا توجد حركات</p>':all.slice(0,60).map(t=>`<div class="tr t${t._t}"><div class="tic">${t._t==='i'?'📥':'📤'}</div><div class="tin"><div class="td">${t._d}</div><div class="tm">${t.dateStr||''}</div></div><div class="ta">${t._t==='e'?'-':'+'} ${fmt(t.amount)} ج</div></div>`).join('')}</div>`}
+  else if(aTab===2){html=`<div class="al alw" style="margin-bottom:.72rem"><div class="aic">📒</div><div class="atx"><strong>إجمالي ديون: ${fmt(cred)} ج</strong></div></div>${!creds.length?`<div class="empty"><div class="eico">📒</div><h3>لا يوجد ديون</h3></div>`:creds.map((c,i)=>{const rem=c.amount-(c.paid||0),pct=c.amount>0?Math.round((c.paid||0)/c.amount*100):0;return`<div class="dc"><div class="dch"><div class="dcn">👤 ${c.name}</div><div class="dca">${fmt(rem)} ج</div></div><div class="dcm">إجمالي: ${fmt(c.amount)} ج | مدفوع: ${fmt(c.paid||0)} ج</div><div class="dcp"><div class="dcf" style="width:${pct}%"></div></div><div class="dca2"><button class="paybtn" onclick="collectCred('${c._key}','${c.name}',${c.amount},${c.paid||0})">💵 دفعة</button><button class="delbtn2" onclick="delItem('creds','${c._key}')">حذف</button></div></div>`}).join('')}`}
+  else if(aTab===3){html=`${!obligs.length?`<div class="empty"><div class="eico">📋</div><h3>لا توجد التزامات</h3></div>`:obligs.map((o,i)=>`<div class="dc"><div class="dch"><div class="dcn">${o.name}</div><div class="dca">${fmt(o.remaining)} ج</div></div><div class="dcm">إجمالي: ${fmt(o.total)} ج</div><div class="dca2"><button class="paybtn" onclick="payOblig('${o._key}',${o.remaining})">💵 دفعة</button><button class="delbtn2" onclick="delItem('obligs','${o._key}')">حذف</button></div></div>`).join('')}`}
+  else if(aTab===4){html=`<div class="card"><div class="ctitle" style="margin-bottom:1rem">➕ قيد جديد</div><div class="fg"><label class="fl">📌 نوع القيد</label><div class="tg"><button class="to2 tinc sel" id="tt-i" onclick="setTType('income')">💰<br>دخل</button><button class="to2 texp" id="tt-e" onclick="setTType('expense')">📤<br>مصروف</button><button class="to2 tob" id="tt-o" onclick="setTType('obligation')">📋<br>التزام</button></div></div><div class="fg"><label class="fl">📝 الوصف *</label><input class="fi" id="td" placeholder="شراء بضاعة، دفع إيجار..."></div><div class="frow"><div class="fg"><label class="fl">💰 المبلغ *</label><input class="fi" type="number" id="ta2" placeholder="0"></div><div class="fg"><label class="fl">📅 تاريخ الاستحقاق</label><input class="fi" type="date" id="tdue"></div></div><button class="btn btn-gold" onclick="recordTxn()">💾 حفظ</button></div>`}
+  else{
+    const d=new Date(),mn=d.getMonth(),yr=d.getFullYear();
+    const tm=sales.filter(s=>{const sd=new Date(s.ts);return sd.getMonth()===mn&&sd.getFullYear()===yr});
+    const mRev=tm.filter(s=>s.type!=='return').reduce((a,b)=>a+b.amount,0);
+    const lm=sales.filter(s=>{const sd=new Date(s.ts);return sd.getMonth()===(mn===0?11:mn-1)&&sd.getFullYear()===(mn===0?yr-1:yr)});
+    const lRev=lm.filter(s=>s.type!=='return').reduce((a,b)=>a+b.amount,0);
+    const growth=lRev>0?Math.round((mRev-lRev)/lRev*100):0;
+    html=`<div class="card"><div class="ctitle">📊 تقرير الشهر</div><div class="rep-row"><div class="rep-lbl">إجمالي مبيعات الشهر</div><div class="rep-val" style="color:var(--gold)">${fmt(mRev)} ج</div></div><div class="rep-row"><div class="rep-lbl">مقارنة بالشهر الماضي</div><div class="rep-val" style="color:${growth>=0?'var(--green)':'var(--red)'}">${growth>=0?'▲':'▼'} ${Math.abs(growth)}%</div></div><div class="rep-row"><div class="rep-lbl">عدد الفواتير</div><div class="rep-val">${tm.length}</div></div><div class="rep-row"><div class="rep-lbl">متوسط الفاتورة</div><div class="rep-val">${tm.length?fmt(mRev/tm.length):0} ج</div></div></div>`;
+  }
+  el('abody').innerHTML=html;
+}
+function setTType(t){tType=t;['i','e','o'].forEach(x=>{const b=el('tt-'+x);if(!b)return;const cm={i:'tinc',e:'texp',o:'tob'};const mm={i:'income',e:'expense',o:'obligation'};b.className=`to2 ${cm[x]}${mm[x]===t?' sel':''}`})}
+async function recordTxn(){const desc=el('td')?.value.trim(),amount=parseFloat(el('ta2')?.value),due=el('tdue')?.value,type=tType;if(!desc){toast('أدخل الوصف','r');return}if(!amount||amount<=0){toast('أدخل مبلغ صحيح','r');return}if(type==='obligation'){await rpush('obligs',{name:desc,total:amount,remaining:amount,due:due||'—',done:false,ts:ts(),dateStr:dStr()});toast('✅ التزام أُضيف','g')}else{await rpush('txns',{ts:ts(),dateStr:dStr(),desc,amount,type});toast(`✅ ${type==='income'?'دخل':'مصروف'}: ${fmt(amount)} ج`,'g')}aTab=0;setATab(0)}
+async function collectCred(key,name,amount,paid){if(!key)return;const v=parseFloat(prompt(`العميل: ${name}\nالمتبقي: ${fmt(amount-paid)} ج\nأدخل المبلغ المدفوع:`));if(isNaN(v)||v<=0)return;const newPaid=Math.min(amount,paid+v);await db.ref(`${CUR}/creds/${key}`).update({paid:newPaid,lastDate:dStr()});toast(`✅ دفعة ${fmt(v)} ج`,'g')}
+async function payOblig(key,rem){if(!key)return;const v=parseFloat(prompt(`المتبقي: ${fmt(rem)} ج\nأدخل الدفعة:`));if(isNaN(v)||v<=0)return;const newRem=Math.max(0,rem-v);await db.ref(`${CUR}/obligs/${key}`).update({remaining:newRem,done:newRem<=0});toast(`✅ دفعة ${fmt(v)} ج`,'g')}
+async function delItem(path,key){if(!key||!confirm('حذف؟'))return;await db.ref(`${CUR}/${path}/${key}`).remove();toast('تم الحذف','r')}
+
+// ══════════════════════════════════════════
+//  ORDERS (realtime from Firebase)
+// ══════════════════════════════════════════
+let oFilter='all';
+function renderOrders(){
+  const orders=DATA.orders||[];
+  const filters=['all','pending','confirmed','shipped','delivered','cancelled'];
+  const labels=['الكل','⏳ معلق','✅ مؤكد','🚚 شُحن','📬 تسلَّم','❌ ملغي'];
+  el('ochips').innerHTML=filters.map((f,i)=>`<button class="chip ${oFilter===f?'on':''}" onclick="oFilter='${f}';renderOrders()">${labels[i]}</button>`).join('');
+  const filtered=oFilter==='all'?orders:orders.filter(o=>o.status===oFilter);
+  const scls={pending:'sp',confirmed:'sc2',shipped:'ssh',delivered:'sd',cancelled:'sx'};
+  const slbl={pending:'⏳ معلق',confirmed:'✅ مؤكد',shipped:'🚚 شُحن',delivered:'📬 تسلَّم',cancelled:'❌ ملغي'};
+  el('obody').innerHTML=!filtered.length?`<div class="empty"><div class="eico">🛒</div><h3>لا توجد طلبات</h3><p>طلبات العملاء ستظهر هنا فوراً عند ورودها</p></div>`
+    :filtered.slice().reverse().map(o=>`<div class="oc"><div class="och"><div class="oid">#${String(o.id||'').slice(-4)}</div><div class="spill ${scls[o.status]||'sp'}">${slbl[o.status]||o.status}</div></div><div class="ometa">👤 ${o.name} | 📞 ${o.phone}<br>📍 ${o.address||'—'}<br>${o.dateStr}${o.note?' | '+o.note:''}</div><div class="ometa">${(o.items||[]).map(it=>`${it.emoji||''} ${it.name} × ${it.qty}`).join(' | ')}</div><div class="ometa otot">💰 ${fmt(o.total)} ج — ${o.pay==='cash'?'💵 عند الاستلام':'💳 دفع إلكتروني'}</div><select class="osel" onchange="updOrd('${o._key}',this.value)">${['pending','confirmed','shipped','delivered','cancelled'].map(s=>`<option value="${s}" ${o.status===s?'selected':''}>${slbl[s]}</option>`).join('')}</select></div>`).join('');
+}
+async function updOrd(key,status){if(!key)return;await db.ref(`${CUR}/orders/${key}`).update({status});toast('✅ تم تحديث الطلب','g')}
+
+// ══════════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════════
+let tT;
+function toast(msg,type=''){const t=el('toast');t.textContent=msg;t.className='show'+(type?(' t'+type):'');clearTimeout(tT);tT=setTimeout(()=>t.className='',2800)}
+
+// Fix Firebase keys in data arrays
+function fixKeys(val){
+  if(!val||typeof val!=='object')return[];
+  return Object.entries(val).map(([k,v])=>({...v,_key:k}));
+}
+// Override listeners to include keys
+function attachListeners(){
+  listeners.forEach(off=>off());listeners=[];
+  const listen=(path,key,transform)=>{
+    const r=db.ref(`${CUR}/${path}`);
+    const fn=snap=>{const v=snap.val();DATA[key]=transform?transform(v):(v||[]);if(el('pg-'+({sales:'sales',txns:'acc',creds:'acc',obligs:'acc',orders:'orders',stock:'stock',custom:'stock'}[key]||'dash'))?.classList.contains('active'))({sales:renderSales,txns:renderAcc,creds:renderAcc,obligs:renderAcc,orders:()=>{renderOrders();checkNotifs()},stock:renderStock,custom:renderStock}[key]||renderDash)();renderDash();};
+    r.on('value',fn);listeners.push(()=>r.off('value',fn));
+  };
+  listen('stock','stock',v=>v||{});
+  listen('sales','sales',v=>fixKeys(v));
+  listen('txns','txns',v=>fixKeys(v));
+  listen('creds','creds',v=>fixKeys(v));
+  listen('obligs','obligs',v=>fixKeys(v));
+  listen('orders','orders',v=>fixKeys(v));
+  listen('custom','custom',v=>fixKeys(v));
+  DEF_PRODS().forEach(async p=>{const s=await rget(`stock/${p.id}`);if(s===null)rset(`stock/${p.id}`,100)});
+}
+</script>
+</body>
+</html>
