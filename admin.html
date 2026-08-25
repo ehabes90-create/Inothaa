@@ -371,8 +371,20 @@ function initFirebase() {
     if (firebase.apps.length) return;
     firebase.initializeApp(firebaseConfig);
     window._db = firebase.database();
+    db.ref('.info/connected').on('value', snap => {
+      FB_CONNECTED = snap.val() === true;
+      const dot = el('fbdot'), stat = el('fbstat');
+      if(FB_CONNECTED){
+        dot && (dot.className='fbdot fbdot-on');
+        stat && (stat.className='fbconn', stat.textContent='✅ متصل بـ Firebase — البيانات تتزامن فوراً');
+      } else {
+        dot && (dot.className='fbdot fbdot-off');
+        stat && (stat.className='fbdis', stat.textContent='❌ غير متصل — تحقق من الإنترنت');
+      }
+      if(el('sync-status') && CUR) updateSyncBar();
+    });
   } catch(e) { console.warn('FB:', e); }
-}
+  }
 
 const firebaseConfig = {
   apiKey: "AIzaSyAb5F56079387_iS5WtnMsJ97NcdkfCqfo",
@@ -386,18 +398,6 @@ const firebaseConfig = {
 const db = { ref: p => window._db ? window._db.ref(p) : {on:()=>{},once:()=>Promise.resolve({val:()=>null}),push:()=>Promise.resolve({key:"local_"+Date.now()}),set:()=>Promise.resolve(),update:()=>Promise.resolve(),remove:()=>Promise.resolve()} };
 
 let FB_CONNECTED = false;
-db.ref('.info/connected').on('value', snap => {
-  FB_CONNECTED = snap.val() === true;
-  const dot = el('fbdot'), stat = el('fbstat');
-  if(FB_CONNECTED){
-    dot && (dot.className='fbdot fbdot-on');
-    stat && (stat.className='fbstat fbconn', stat.textContent='✅ متصل بـ Firebase — البيانات تتزامن فوراً');
-  } else {
-    dot && (dot.className='fbdot fbdot-off');
-    stat && (stat.className='fbstat fbdis', stat.textContent='❌ غير متصل — تحقق من الإنترنت');
-  }
-  if(el('sync-status') && CUR) updateSyncBar();
-});
 
 // ══════════════════════════════════════════
 //  STATE & HELPERS
