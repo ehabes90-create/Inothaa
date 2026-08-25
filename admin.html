@@ -371,7 +371,6 @@ function initFirebase() {
     if (firebase.apps.length) return;
     firebase.initializeApp(firebaseConfig);
     window._db = firebase.database();
-    window._// Firebase connected listener moved to initFirebase()
   } catch(e) { console.warn('FB:', e); }
 }
 
